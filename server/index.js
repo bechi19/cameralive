@@ -6,8 +6,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const PORT = process.env.PORT || 5000;
-const CLIENT_URL = process.env.CLIENT_URL || '*';
+const PORT = (process.env.PORT || '5000').toString().trim();
+const CLIENT_URL = (process.env.CLIENT_URL || '*').toString().trim();
 
 const app = express();
 const server = http.createServer(app);
