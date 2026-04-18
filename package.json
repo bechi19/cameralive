@@ -20,7 +20,7 @@
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.14.1",
     "socket.io-client": "^4.8.3",
-    "express": "^5.2.1",
+    "express": "^4.19.2",
     "socket.io": "^4.8.3",
     "cors": "^2.8.6",
     "multer": "^2.1.1"
