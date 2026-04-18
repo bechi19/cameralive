@@ -22,6 +22,9 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../dist')));
+
 // In-memory data store
 let photos = [];
 let streamers = new Set();
@@ -91,6 +94,11 @@ app.get('/photos', (req, res) => {
 // 5. Get approved photos (for public site)
 app.get('/photos/approved', (req, res) => {
     res.json(photos.filter(p => p.status === 'approved'));
+});
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 // --- Socket.io ---
