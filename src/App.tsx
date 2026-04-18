@@ -14,72 +14,33 @@ import Peer from 'peerjs';
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || `http://${window.location.hostname}:5000`;
 const socket = io(SERVER_URL);
 
-// --- Shared Components ---
-const QRCodeModal = ({ isOpen, onClose, url }: any) => (
-  <AnimatePresence>
-    {isOpen && (
-      <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6">
-        <motion.div 
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-        />
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-          className="glass-card max-w-sm w-full relative z-10 p-8 text-center"
-        >
-          <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-white"><X size={20}/></button>
-          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Smartphone className="text-primary" />
-          </div>
-          <h2 className="text-2xl font-black mb-2">Scan to Join</h2>
-          <p className="text-sm text-text-secondary mb-8">Point your phone's camera at this code to open the live capture tool.</p>
-          <div className="bg-white p-4 rounded-3xl inline-block shadow-2xl mb-6">
-            <QRCodeSVG value={url} size={200} fgColor="#020617" />
-          </div>
-          <p className="text-[10px] font-black tracking-widest text-primary uppercase">Ready to Sync</p>
-        </motion.div>
-      </div>
-    )}
-  </AnimatePresence>
-);
-
 // --- Navigation ---
 const Navbar = () => {
   const { pathname } = useLocation();
-  const [showQR, setShowQR] = useState(false);
-  const clientUrl = `${window.location.origin}/client`;
-
   if (pathname === '/client') return null;
 
   return (
-    <>
-      <nav className="navbar">
-        <Link to="/" className="text-xl font-black tracking-tighter flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Camera size={18} className="text-white" />
-          </div>
-          <span>CL.</span>
-        </Link>
-        <div className="nav-links">
-          <Link to="/gallery">Gallery</Link>
-          <Link to="/admin">Admin</Link>
+    <nav className="navbar">
+      <Link to="/" className="text-xl font-black tracking-tighter flex items-center gap-2">
+        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+          <Camera size={18} className="text-white" />
         </div>
-        <button onClick={() => setShowQR(true)} className="btn btn-primary py-2 px-6 rounded-full text-xs">
-          <QrCode size={14} /> Scan to Join
-        </button>
-      </nav>
-      <QRCodeModal isOpen={showQR} onClose={() => setShowQR(false)} url={clientUrl} />
-    </>
+        <span>CL.</span>
+      </Link>
+      <div className="nav-links">
+        <Link to="/gallery">Gallery</Link>
+        <Link to="/admin">Admin</Link>
+      </div>
+      <Link to="/client" className="btn btn-primary py-2 px-6 rounded-full text-xs">
+        <Smartphone size={14} /> Open Camera
+      </Link>
+    </nav>
   );
 };
 
 // --- Pages ---
 
 const Home = () => {
-  const [showQR, setShowQR] = useState(false);
-  const clientUrl = `${window.location.origin}/client`;
-
   return (
     <div className="page-container">
       <motion.div
@@ -89,58 +50,46 @@ const Home = () => {
       >
         <div className="badge border border-primary/30 text-primary mb-6 flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-          REAL-TIME VISUALS
+          NOW LIVE & GLOBAL
         </div>
         <h1 className="hero-title">
-          SHARE YOUR <span className="text-gradient">WORLD.</span>
+          LIVE <span className="text-gradient">SYNERGY.</span>
         </h1>
         <p className="hero-subtitle">
-          Scan the QR code below or click join to turn your phone into a professional live camera. 
-          Your captures are instantly shared with the community gallery.
+          Turn your smartphone into a professional live camera. 
+          Capture moments, share your perspective, and see them featured in our community gallery instantly.
         </p>
         
-        <div className="flex flex-col items-center gap-8">
-          <div className="glass-card p-6 !w-auto border-primary/20 bg-primary/5 flex flex-col items-center gap-4">
-             <div className="bg-white p-3 rounded-2xl">
-               <QRCodeSVG value={clientUrl} size={160} fgColor="#020617" />
-             </div>
-             <p className="text-xs font-black tracking-widest text-primary">SCAN WITH PHONE</p>
-          </div>
-          
-          <div className="flex gap-4">
-            <Link to="/gallery" className="btn btn-primary px-8 py-4">
-              Explore Gallery
-            </Link>
-            <Link to="/admin" className="btn btn-secondary px-8 py-4">
-              Control Hub
-            </Link>
-          </div>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Link to="/client" className="btn btn-primary px-10 py-5 text-lg">
+            Start Capturing <Camera size={20} />
+          </Link>
+          <Link to="/gallery" className="btn btn-secondary px-10 py-5 text-lg">
+            View Live Gallery
+          </Link>
         </div>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24 w-full">
         <div className="glass-card p-8 flex flex-col items-start gap-4 hover:border-primary/30 transition-colors">
           <div className="p-3 bg-primary/10 rounded-xl text-primary"><Zap /></div>
-          <h3 className="text-xl font-bold">Live Stream</h3>
-          <p className="text-sm text-text-secondary">Broadcasting live directly to our dashboard with zero lag.</p>
+          <h3 className="text-xl font-bold">Real-time Stream</h3>
+          <p className="text-sm text-text-secondary">Low-latency video and photo transfers powered by high-end WebRTC technology.</p>
         </div>
         <div className="glass-card p-8 flex flex-col items-start gap-4 hover:border-primary/30 transition-colors">
           <div className="p-3 bg-primary/10 rounded-xl text-primary"><Globe /></div>
-          <h3 className="text-xl font-bold">Community Wall</h3>
-          <p className="text-sm text-text-secondary">Approved captures are displayed on the public gallery for everyone.</p>
+          <h3 className="text-xl font-bold">Global Access</h3>
+          <p className="text-sm text-text-secondary">Fully hosted and accessible from any device, anywhere in the world.</p>
         </div>
         <div className="glass-card p-8 flex flex-col items-start gap-4 hover:border-primary/30 transition-colors">
           <div className="p-3 bg-primary/10 rounded-xl text-primary"><Shield /></div>
-          <h3 className="text-xl font-bold">Secure Auth</h3>
-          <p className="text-sm text-text-secondary">Admin moderation ensures only high-quality content goes public.</p>
+          <h3 className="text-xl font-bold">Curated Content</h3>
+          <p className="text-sm text-text-secondary">Professional moderation tools ensure only the best moments reach the gallery.</p>
         </div>
       </div>
-      <QRCodeModal isOpen={showQR} onClose={() => setShowQR(false)} url={clientUrl} />
     </div>
   );
 };
-
-// ... (Rest of the components: AdminDashboard, PublicGallery, ClientCamera remain same but I need to include them in the rewrite)
 
 const AdminDashboard = () => {
   const [photos, setPhotos] = useState<any[]>([]);
