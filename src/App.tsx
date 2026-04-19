@@ -5,7 +5,8 @@ import {
   Camera, LayoutDashboard, Tv, Image as ImageIcon, 
   Monitor, Smartphone, CheckCircle, RefreshCw, 
   X, Check, User, ExternalLink, ArrowRight, Zap,
-  Globe, Shield, QrCode, Sparkles, Lock, LogIn
+  Globe, Shield, QrCode, Sparkles, Lock, LogIn,
+  Send, RotateCcw
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import io from 'socket.io-client';
@@ -261,6 +262,8 @@ const PublicGallery = () => {
 const ClientCamera = () => {
   const [name, setName] = useState('');
   const [joined, setJoined] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [capturing, setCapturing] = useState(false);
   const [success, setSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -269,18 +272,27 @@ const ClientCamera = () => {
     if (name) setJoined(true);
   };
 
-  const handleNativeCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const submitPhoto = async () => {
+    if (!selectedFile) return;
 
     const fd = new FormData();
-    fd.append('photo', file);
+    fd.append('photo', selectedFile);
     fd.append('userName', name);
     
     setCapturing(true);
     try {
       await fetch(`${SERVER_URL}/upload`, { method: 'POST', body: fd });
       setSuccess(true);
+      setSelectedFile(null);
+      setPreviewUrl(null);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       alert("Upload failed. Please check your connection.");
@@ -321,35 +333,63 @@ const ClientCamera = () => {
 
   return (
     <div className="page-container h-screen flex flex-col items-center justify-center text-center p-6 !pt-0">
-      <div className="glass-card max-w-sm flex flex-col items-center gap-8 py-12">
-        <div className="relative">
-          <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center animate-pulse">
-            <Camera size={48} className="text-primary" />
-          </div>
-          <div className="absolute -top-2 -right-2 bg-emerald-500 w-6 h-6 rounded-full border-4 border-slate-900" />
-        </div>
+      <div className="glass-card max-w-sm flex flex-col items-center gap-6 py-8">
+        {!previewUrl ? (
+          <>
+            <div className="relative">
+              <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center animate-pulse">
+                <Camera size={48} className="text-primary" />
+              </div>
+            </div>
 
-        <div>
-          <h2 className="text-2xl font-black mb-2">Ready, {name.split(' ')[0]}?</h2>
-          <p className="text-text-secondary text-sm">Click below to open your phone's camera and capture a moment.</p>
-        </div>
+            <div>
+              <h2 className="text-2xl font-black mb-2">Ready, {name.split(' ')[0]}?</h2>
+              <p className="text-text-secondary text-sm">Open your camera to capture a moment.</p>
+            </div>
 
-        <input 
-          type="file" 
-          accept="image/*" 
-          capture="environment" 
-          className="hidden" 
-          ref={fileInputRef} 
-          onChange={handleNativeCapture}
-        />
+            <input 
+              type="file" 
+              accept="image/*" 
+              capture="environment" 
+              className="hidden" 
+              ref={fileInputRef} 
+              onChange={onFileSelect}
+            />
 
-        <button 
-          onClick={() => fileInputRef.current?.click()}
-          disabled={capturing}
-          className="btn btn-primary w-full py-6 text-xl shadow-[0_20px_40px_rgba(99,102,241,0.4)]"
-        >
-          {capturing ? <RefreshCw className="animate-spin" /> : <><Camera size={28} /> Open Camera</>}
-        </button>
+            <button 
+              onClick={() => fileInputRef.current?.click()}
+              className="btn btn-primary w-full py-6 text-xl shadow-[0_20px_40px_rgba(99,102,241,0.4)]"
+            >
+              <Camera size={28} /> Open Camera
+            </button>
+          </>
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full space-y-6"
+          >
+            <div className="aspect-square w-full rounded-2xl overflow-hidden border-4 border-white/10 shadow-2xl">
+              <img src={previewUrl} className="w-full h-full object-cover" />
+            </div>
+
+            <div className="space-y-3">
+               <button 
+                onClick={submitPhoto}
+                disabled={capturing}
+                className="btn btn-primary w-full py-5 text-lg"
+              >
+                {capturing ? <RefreshCw className="animate-spin" /> : <><Send size={20} /> Submit to Admin</>}
+              </button>
+              <button 
+                onClick={() => { setSelectedFile(null); setPreviewUrl(null); }}
+                className="btn btn-secondary w-full py-3 text-sm"
+              >
+                <RotateCcw size={16} /> Retake Photo
+              </button>
+            </div>
+          </motion.div>
+        )}
 
         <AnimatePresence>
           {success && (
