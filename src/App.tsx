@@ -65,12 +65,12 @@ const Home = () => {
         variants={staggerContainer}
         initial="initial"
         animate="animate"
-        className="w-full max-w-4xl"
+        className="w-full max-w-5xl"
       >
-        <motion.div variants={fadeInUp} className="flex justify-center mb-8 sm:mb-12">
-          <div className="status-badge">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            LIVE STREAMING ACTIVE
+        <motion.div variants={fadeInUp} className="flex justify-center mb-8 sm:mb-16">
+          <div className="status-badge group cursor-default">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+            <span className="group-hover:text-emerald-400 transition-colors">LIVE STREAMING ACTIVE</span>
           </div>
         </motion.div>
 
@@ -79,32 +79,32 @@ const Home = () => {
           <span className="text-gradient">Live Moments.</span>
         </motion.h1>
 
-        <motion.p variants={fadeInUp} className="hero-subtitle px-4">
+        <motion.p variants={fadeInUp} className="hero-subtitle px-4 lg:px-0">
           Experience events through the lens of everyone present. Instant, unedited, and authentic community storytelling.
         </motion.p>
         
-        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center gap-4 mt-6 sm:mt-8 px-4">
-          <Link to="/client" className="btn btn-primary group !py-4 sm:!py-5">
-            Start Capturing <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
+        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center items-center gap-6 mt-10 sm:mt-12 px-4">
+          <Link to="/client" className="btn btn-primary group !py-5 !px-8 text-lg min-w-[240px]">
+            Start Capturing <ArrowRight size={22} className="transition-transform group-hover:translate-x-1" />
           </Link>
-          <Link to="/gallery" className="btn btn-secondary !py-4 sm:!py-5">
+          <Link to="/gallery" className="btn btn-secondary !py-5 !px-8 text-lg min-w-[240px]">
             View Live Gallery
           </Link>
         </motion.div>
 
-        <motion.div variants={fadeInUp} className="mt-16 sm:mt-24 grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8 px-6">
+        <motion.div variants={fadeInUp} className="mt-24 sm:mt-32 grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 px-6">
            {[
              { icon: <Zap className="text-amber-400" />, title: "Instant", desc: "Real-time sync" },
              { icon: <Shield className="text-emerald-400" />, title: "Moderated", desc: "Safe community" },
              { icon: <Globe className="text-blue-400" />, title: "Global", desc: "Share everywhere" }
            ].map((item, i) => (
-             <div key={i} className="flex flex-col items-center gap-3">
-               <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-1 shadow-xl">
-                 {item.icon}
+             <div key={i} className="flex flex-col items-center gap-4 group">
+               <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-2 shadow-2xl transition-all group-hover:scale-110 group-hover:border-primary/50 group-hover:bg-primary/5">
+                 {React.cloneElement(item.icon as React.ReactElement, { size: 28 })}
                </div>
-               <div>
-                 <h3 className="text-xl font-bold mb-1">{item.title}</h3>
-                 <p className="text-sm text-text-muted">{item.desc}</p>
+               <div className="text-center">
+                 <h3 className="text-2xl font-black mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
+                 <p className="text-base text-text-muted">{item.desc}</p>
                </div>
              </div>
            ))}
@@ -138,8 +138,8 @@ const AdminLogin = ({ onLogin }: { onLogin: () => void }) => {
         <div className="w-20 h-20 bg-primary/10 rounded-3xl mx-auto mb-8 flex items-center justify-center text-primary">
           <Lock size={40} />
         </div>
-        <h2 className="text-3xl font-black text-center mb-2">Admin Panel</h2>
-        <p className="text-text-muted text-center mb-8">Enter your credentials to manage live content.</p>
+        <h2 className="text-3xl sm:text-4xl font-black text-center mb-2">Admin Panel</h2>
+        <p className="text-text-muted text-center mb-10 max-w-xs mx-auto">Enter your credentials to manage live content.</p>
         
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1">
@@ -162,7 +162,7 @@ const AdminLogin = ({ onLogin }: { onLogin: () => void }) => {
             />
           </div>
           {error && <p className="text-red-400 text-xs font-bold text-center">{error}</p>}
-          <button type="submit" className="btn btn-primary w-full py-4 mt-4">
+          <button type="submit" className="btn btn-primary !w-full py-4 mt-4">
             Authorize <ChevronRight size={18} />
           </button>
         </form>
@@ -185,24 +185,24 @@ const AdminDashboard = () => {
 
   return (
     <div className="page-container">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-16">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-20">
         <div className="w-full lg:w-auto">
-          <h2 className="text-4xl sm:text-5xl font-black mb-4">Command <span className="text-gradient">Center</span></h2>
-          <div className="flex flex-wrap items-center gap-3">
-             <div className="status-badge bg-primary/10 border-primary/20 text-primary !py-1.5 !px-4">
-               <Activity size={14} /> <span className="text-xs">LIVE MODERATION</span>
+          <h2 className="text-4xl sm:text-6xl font-black mb-6">Command <span className="text-gradient">Center</span></h2>
+          <div className="flex flex-wrap items-center gap-4">
+             <div className="status-badge bg-primary/10 border-primary/20 text-primary !py-2 !px-5 shadow-[0_0_20px_rgba(99,102,241,0.15)]">
+               <Activity size={16} /> <span className="text-sm">LIVE MODERATION</span>
              </div>
-             <p className="text-sm sm:text-base text-text-muted">Monitoring {photos.length} total captures.</p>
+             <p className="text-base text-text-muted border-l border-white/10 pl-4 ml-1">Monitoring {photos.length} total captures.</p>
           </div>
         </div>
         
-        <div className="glass-card !p-4 flex items-center gap-4 bg-white/5 border-white/10 group lg:max-w-xs w-full">
+        <div className="glass-card !p-5 flex items-center gap-6 bg-white/5 border-white/10 group lg:max-w-md w-full shadow-2xl">
            <div className="text-right flex-1 min-w-0">
-             <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Client Portal</p>
-             <p className="text-xs font-mono text-white/60 truncate">{clientUrl}</p>
+             <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-1">Live Feed Portal</p>
+             <p className="text-sm font-mono text-primary truncate selection:bg-primary selection:text-white">{clientUrl}</p>
            </div>
-           <div className="p-1.5 bg-white rounded-xl transition-transform group-hover:scale-105 shrink-0">
-             <QRCodeSVG value={clientUrl} size={64} fgColor="#020617" />
+           <div className="p-2 bg-white rounded-2xl transition-all group-hover:scale-110 group-hover:rotate-3 shrink-0 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+             <QRCodeSVG value={clientUrl} size={80} fgColor="#020617" />
            </div>
         </div>
       </div>
