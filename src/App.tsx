@@ -11,7 +11,8 @@ import {
 import { QRCodeSVG } from 'qrcode.react';
 import io from 'socket.io-client';
 
-const SERVER_URL = (import.meta.env.VITE_SERVER_URL || `http://${window.location.hostname}:5000`).toString().trim();
+// Use a smart URL that works both locally and on Railway
+const SERVER_URL = (import.meta.env.VITE_SERVER_URL || window.location.origin).toString().trim();
 const socket = io(SERVER_URL);
 
 // --- Navigation ---
@@ -127,7 +128,7 @@ const AdminDashboard = () => {
   const clientUrl = `${window.location.origin}/client`;
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/photos`).then(r => r.json()).then(setPhotos).catch(e => console.error("Fetch failed", e));
+    fetch(`/photos`).then(r => r.json()).then(setPhotos).catch(e => console.error("Fetch failed", e));
     socket.on('new-photo', (ph) => setPhotos(v => [ph, ...v]));
     socket.on('photo-approved', (u) => setPhotos(v => v.map(p => p.id === u.id ? u : p)));
     socket.on('photo-removed', (id) => setPhotos(v => v.filter(p => p.id !== id)));
@@ -193,13 +194,13 @@ const AdminDashboard = () => {
                       <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${p.status === 'approved' ? 'bg-primary text-white' : 'bg-amber-500 text-black'}`}>
                         {p.status}
                       </span>
-                      <button onClick={() => fetch(`${SERVER_URL}/photo/${p.id}`, { method: 'DELETE' })} className="text-slate-400 hover:text-red-400 transition-colors"><X size={24}/></button>
+                      <button onClick={() => fetch(`/photo/${p.id}`, { method: 'DELETE' })} className="text-slate-400 hover:text-red-400 transition-colors"><X size={24}/></button>
                     </div>
                     <div>
                       <p className="font-black text-xl">{p.userName}</p>
                       <p className="text-[10px] text-text-secondary mb-4">{new Date(p.timestamp).toLocaleTimeString()}</p>
                       {p.status === 'pending' && (
-                        <button onClick={() => fetch(`${SERVER_URL}/approve/${p.id}`, { method: 'POST' })} className="btn btn-primary w-full justify-center py-2 text-sm">Approve</button>
+                        <button onClick={() => fetch(`/approve/${p.id}`, { method: 'POST' })} className="btn btn-primary w-full justify-center py-2 text-sm">Approve</button>
                       )}
                     </div>
                   </div>
@@ -217,7 +218,7 @@ const PublicGallery = () => {
   const [photos, setPhotos] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/photos/approved`).then(r => r.json()).then(setPhotos).catch(e => console.error("Fetch failed", e));
+    fetch(`/photos/approved`).then(r => r.json()).then(setPhotos).catch(e => console.error("Fetch failed", e));
     socket.on('photo-approved', (p) => setPhotos(v => [p, ...v]));
     socket.on('photo-removed', (id) => setPhotos(v => v.filter(p => p.id !== id)));
     return () => { socket.off('photo-approved'); socket.off('photo-removed'); };
@@ -289,7 +290,7 @@ const ClientCamera = () => {
     
     setCapturing(true);
     try {
-      await fetch(`${SERVER_URL}/upload`, { method: 'POST', body: fd });
+      await fetch(`/upload`, { method: 'POST', body: fd });
       setSuccess(true);
       setSelectedFile(null);
       setPreviewUrl(null);
