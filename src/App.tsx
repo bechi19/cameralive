@@ -33,8 +33,9 @@ const Navbar = () => {
         <Link to="/gallery" className={pathname === '/gallery' ? 'active' : ''}>Gallery</Link>
         <Link to="/admin" className={pathname === '/admin' ? 'active' : ''}>Admin</Link>
       </div>
-      <Link to="/client" className="btn btn-primary !py-1.5 !px-3 sm:!py-2.5 sm:!px-5 rounded-full text-[10px] sm:text-xs shadow-none">
-        <Camera size={12} className="sm:mr-1" /> <span className="hidden sm:inline">Join Live</span>
+      <Link to="/client" className="btn btn-primary !py-2 !px-3 sm:!py-2.5 sm:!px-5 rounded-full text-[10px] sm:text-xs shadow-none whitespace-nowrap">
+        <span className="hidden xs:inline">Join Live</span>
+        <span className="xs:hidden">Join</span>
       </Link>
     </nav>
   );
@@ -66,7 +67,7 @@ const Home = () => {
         animate="animate"
         className="w-full max-w-4xl"
       >
-        <motion.div variants={fadeInUp} className="flex justify-center mb-8">
+        <motion.div variants={fadeInUp} className="flex justify-center mb-8 sm:mb-12">
           <div className="status-badge">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             LIVE STREAMING ACTIVE
@@ -78,31 +79,33 @@ const Home = () => {
           <span className="text-gradient">Live Moments.</span>
         </motion.h1>
 
-        <motion.p variants={fadeInUp} className="hero-subtitle">
+        <motion.p variants={fadeInUp} className="hero-subtitle px-4">
           Experience events through the lens of everyone present. Instant, unedited, and authentic community storytelling.
         </motion.p>
         
-        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center gap-4 mt-4">
-          <Link to="/client" className="btn btn-primary group">
+        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center gap-4 mt-6 sm:mt-8 px-4">
+          <Link to="/client" className="btn btn-primary group !py-4 sm:!py-5">
             Start Capturing <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
           </Link>
-          <Link to="/gallery" className="btn btn-secondary">
+          <Link to="/gallery" className="btn btn-secondary !py-4 sm:!py-5">
             View Live Gallery
           </Link>
         </motion.div>
 
-        <motion.div variants={fadeInUp} className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-8">
+        <motion.div variants={fadeInUp} className="mt-16 sm:mt-24 grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8 px-6">
            {[
              { icon: <Zap className="text-amber-400" />, title: "Instant", desc: "Real-time sync" },
              { icon: <Shield className="text-emerald-400" />, title: "Moderated", desc: "Safe community" },
              { icon: <Globe className="text-blue-400" />, title: "Global", desc: "Share everywhere" }
            ].map((item, i) => (
-             <div key={i} className="flex flex-col items-center gap-2">
-               <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-2">
+             <div key={i} className="flex flex-col items-center gap-3">
+               <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-1 shadow-xl">
                  {item.icon}
                </div>
-               <h3 className="text-lg font-bold">{item.title}</h3>
-               <p className="text-sm text-text-muted">{item.desc}</p>
+               <div>
+                 <h3 className="text-xl font-bold mb-1">{item.title}</h3>
+                 <p className="text-sm text-text-muted">{item.desc}</p>
+               </div>
              </div>
            ))}
         </motion.div>
