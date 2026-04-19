@@ -9,7 +9,6 @@ const fs = require('fs');
 // Aggressively clean environment variables to remove hidden characters or non-standard quotes
 const cleanEnv = (val, fallback) => {
   if (!val) return fallback;
-  // Remove anything that isn't a standard URL/Port character (ASCII 33-126)
   return val.toString().replace(/[^\x21-\x7E]/g, "").trim() || fallback;
 };
 
@@ -28,98 +27,82 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../dist')));
 
-// In-memory data store
-let photos = [];
-let streamers = new Set();
+const DB_FILE = path.join(__dirname, 'photos.json');
 
-// Multer setup
+// Load photos from "database" file
+let photos = [];
+if (fs.existsSync(DB_FILE)) {
+    try {
+        photos = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    } catch (e) {
+        photos = [];
+    }
+}
+
+// Save photos to "database" file
+const saveToDb = () => {
+    fs.writeFileSync(DB_FILE, JSON.stringify(photos, null, 2));
+};
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
+        if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
         cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
+        cb(null, Date.now() + path.extname(file.originalname));
     }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
-// --- API Endpoints ---
-
-// 1. Upload Photo
-app.post('/upload', upload.single('photo'), (req, res) => {
-    if (!req.file) return res.status(400).send('No file uploaded.');
-    
-    const userName = req.body.userName || 'Anonymous';
-    const imageUrl = `http://${req.headers.host}/uploads/${req.file.filename}`;
-    
-    const newPhoto = {
-        id: Date.now().toString(),
-        url: imageUrl,
-        userName: userName,
-        status: 'pending',
-        timestamp: new Date().toISOString()
-    };
-    
-    photos.push(newPhoto);
-    
-    // Notify admin
-    io.emit('new-photo', newPhoto);
-    
-    res.status(200).json(newPhoto);
-});
-
-// 2. Approve Photo
-app.post('/approve/:id', (req, res) => {
-    const photo = photos.find(p => p.id === req.params.id);
-    if (!photo) return res.status(404).send('Photo not found');
-    
-    photo.status = 'approved';
-    
-    // Notify everyone (especially public gallery)
-    io.emit('photo-approved', photo);
-    
-    res.status(200).json(photo);
-});
-
-// 3. Reject/Delete Photo
-app.delete('/photo/:id', (req, res) => {
-    photos = photos.filter(p => p.id !== req.params.id);
-    io.emit('photo-removed', req.params.id);
-    res.status(200).send('Removed');
-});
-
-// 4. Get all photos (for admin)
 app.get('/photos', (req, res) => {
     res.json(photos);
 });
 
-// 5. Get approved photos (for public site)
 app.get('/photos/approved', (req, res) => {
     res.json(photos.filter(p => p.status === 'approved'));
 });
 
-// Handle React routing, return all requests to React app
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+app.post('/upload', upload.single('photo'), (req, res) => {
+    if (!req.file) return res.status(400).send('No file uploaded.');
+    const photo = {
+        id: Date.now().toString(),
+        url: `/uploads/${req.file.filename}`,
+        userName: req.body.userName,
+        timestamp: new Date(),
+        status: 'pending'
+    };
+    photos.push(photo);
+    saveToDb();
+    io.emit('new-photo', photo);
+    res.json(photo);
 });
 
-// --- Socket.io ---
-io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
+app.post('/approve/:id', (req, res) => {
+    const photo = photos.find(p => p.id === req.params.id);
+    if (photo) {
+        photo.status = 'approved';
+        saveToDb();
+        io.emit('photo-approved', photo);
+        res.json(photo);
+    } else {
+        res.status(404).send('Photo not found');
+    }
+});
 
-    socket.on('register-streamer', (peerId) => {
-        streamers.add(peerId);
-        io.emit('streamer-list', Array.from(streamers));
-    });
+app.delete('/photo/:id', (req, res) => {
+    photos = photos.filter(p => p.id !== req.params.id);
+    saveToDb();
+    io.emit('photo-removed', req.params.id);
+    res.send('Deleted');
+});
 
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
+// Handle React routing
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 server.listen(PORT, () => {
