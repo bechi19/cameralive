@@ -34,8 +34,8 @@ const Navbar = () => {
         <Link to="/admin" className={pathname === '/admin' ? 'active' : ''}>Admin</Link>
       </div>
       <Link to="/client" className="btn btn-primary !py-2 !px-3 sm:!py-2.5 sm:!px-5 rounded-full text-[10px] sm:text-xs shadow-none whitespace-nowrap">
-        <span className="hidden xs:inline">Join Live</span>
-        <span className="xs:hidden">Join</span>
+        <span className="xs-hidden">Join Live</span>
+        <span className="xs-only">Join</span>
       </Link>
     </nav>
   );
@@ -185,23 +185,23 @@ const AdminDashboard = () => {
 
   return (
     <div className="page-container">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-12 sm:mb-16">
-        <div className="w-full">
-          <h2 className="text-3xl sm:text-5xl font-black mb-3 sm:mb-4">Command <span className="text-gradient">Center</span></h2>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-16">
+        <div className="w-full lg:w-auto">
+          <h2 className="text-4xl sm:text-5xl font-black mb-4">Command <span className="text-gradient">Center</span></h2>
           <div className="flex flex-wrap items-center gap-3">
-             <div className="status-badge bg-primary/10 border-primary/20 text-primary !py-1 !px-3">
-               <Activity size={12} /> <span className="text-[10px] sm:text-xs">LIVE MODERATION</span>
+             <div className="status-badge bg-primary/10 border-primary/20 text-primary !py-1.5 !px-4">
+               <Activity size={14} /> <span className="text-xs">LIVE MODERATION</span>
              </div>
-             <p className="text-xs sm:text-base text-text-muted">Monitoring {photos.length} total captures.</p>
+             <p className="text-sm sm:text-base text-text-muted">Monitoring {photos.length} total captures.</p>
           </div>
         </div>
         
-        <div className="glass-card !p-4 flex items-center gap-4 bg-white/5 border-white/10 group">
-           <div className="text-right">
+        <div className="glass-card !p-4 flex items-center gap-4 bg-white/5 border-white/10 group lg:max-w-xs w-full">
+           <div className="text-right flex-1 min-w-0">
              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Client Portal</p>
-             <p className="text-xs font-mono text-white/60">{clientUrl}</p>
+             <p className="text-xs font-mono text-white/60 truncate">{clientUrl}</p>
            </div>
-           <div className="p-1.5 bg-white rounded-xl transition-transform group-hover:scale-105">
+           <div className="p-1.5 bg-white rounded-xl transition-transform group-hover:scale-105 shrink-0">
              <QRCodeSVG value={clientUrl} size={64} fgColor="#020617" />
            </div>
         </div>
