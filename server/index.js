@@ -21,7 +21,9 @@ const io = new Server(server, {
     cors: {
         origin: CLIENT_URL,
         methods: ["GET", "POST"]
-    }
+    },
+    maxHttpBufferSize: 1e7, // 10MB
+    transports: ['websocket', 'polling']
 });
 
 let currentStreamer = null;
@@ -41,6 +43,7 @@ io.on('connection', (socket) => {
     socket.on('stream-frame', (frame) => {
         if (currentStreamer && currentStreamer.id === socket.id) {
             socket.broadcast.emit('stream-frame', frame);
+            // console.log(`Frame received from ${currentStreamer.name}`);
         }
     });
 

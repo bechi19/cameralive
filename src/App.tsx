@@ -13,7 +13,9 @@ import { QRCodeSVG } from 'qrcode.react';
 import io from 'socket.io-client';
 
 const SERVER_URL = (import.meta.env.VITE_SERVER_URL || window.location.origin).toString().trim();
-const socket = io(SERVER_URL);
+const socket = io(SERVER_URL, {
+  transports: ['websocket', 'polling']
+});
 
 // --- Navigation ---
 const Navbar = () => {
@@ -518,6 +520,16 @@ const ClientCamera = () => {
     }
     return () => clearInterval(timer);
   }, [isStreaming]);
+
+  useEffect(() => {
+    const handleConnect = () => {
+      if (isStreaming && joined) {
+        socket.emit('start-stream', { name });
+      }
+    };
+    socket.on('connect', handleConnect);
+    return () => { socket.off('connect', handleConnect); };
+  }, [isStreaming, joined, name]);
 
   const join = () => {
     if (name) setJoined(true);
