@@ -61,10 +61,25 @@ const staggerContainer = {
 
 const Home = () => {
   const [isLive, setIsLive] = useState(false);
+  const [streamerName, setStreamerName] = useState('');
+  const [currentFrame, setCurrentFrame] = useState<string | null>(null);
 
   useEffect(() => {
-    socket.on('stream-status', (status) => setIsLive(status.active));
-    return () => { socket.off('stream-status'); };
+    socket.on('stream-status', (status) => {
+      setIsLive(status.active);
+      setStreamerName(status.streamerName || '');
+      if (!status.active) setCurrentFrame(null);
+    });
+
+    socket.on('stream-frame', (frame) => {
+      setCurrentFrame(frame);
+      setIsLive(true);
+    });
+
+    return () => { 
+      socket.off('stream-status'); 
+      socket.off('stream-frame');
+    };
   }, []);
 
   return (
@@ -83,6 +98,33 @@ const Home = () => {
             </span>
           </div>
         </motion.div>
+
+        {isLive && currentFrame && (
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-16 sm:mb-24 w-full"
+          >
+            <div className="glass-card !p-0 overflow-hidden border-primary/40 shadow-[0_0_80px_rgba(212,175,55,0.2)] max-w-3xl mx-auto group">
+              <div className="bg-primary/10 px-6 py-4 flex items-center justify-between border-b border-primary/20">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                  <h3 className="text-sm font-black tracking-widest uppercase m-0">Direct Live</h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <User size={14} className="text-primary" />
+                  <span className="text-xs font-bold text-text-muted">Captured by {streamerName}</span>
+                </div>
+              </div>
+              <div className="aspect-video w-full bg-black relative overflow-hidden">
+                <img src={currentFrame} className="w-full h-full object-contain" alt="Live stream" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                   <p className="text-white text-xs font-bold tracking-widest uppercase">Live Celebration Feed</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         <motion.h1 variants={fadeInUp} className="hero-title">
           Capturing Our <br />
