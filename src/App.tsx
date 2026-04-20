@@ -60,6 +60,13 @@ const staggerContainer = {
 // --- Components ---
 
 const Home = () => {
+  const [isLive, setIsLive] = useState(false);
+
+  useEffect(() => {
+    socket.on('stream-status', (status) => setIsLive(status.active));
+    return () => { socket.off('stream-status'); };
+  }, []);
+
   return (
     <div className="page-container justify-center items-center text-center">
       <motion.div
@@ -70,8 +77,10 @@ const Home = () => {
       >
         <motion.div variants={fadeInUp} className="flex justify-center mb-8 sm:mb-16">
           <div className="status-badge group cursor-default">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
-            <span className="group-hover:text-emerald-400 transition-colors">LIVE STREAMING ACTIVE</span>
+            <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]'}`} />
+            <span className={isLive ? 'text-red-400 font-bold' : 'group-hover:text-emerald-400 transition-colors'}>
+              {isLive ? 'LIVE STREAMING ACTIVE' : 'SYSTEM ONLINE'}
+            </span>
           </div>
         </motion.div>
 
@@ -174,15 +183,43 @@ const AdminLogin = ({ onLogin }: { onLogin: () => void }) => {
 
 const AdminDashboard = () => {
   const [photos, setPhotos] = useState<any[]>([]);
+  const [isLive, setIsLive] = useState(false);
+  const [streamerName, setStreamerName] = useState('');
+  const [currentFrame, setCurrentFrame] = useState<string | null>(null);
   const clientUrl = `${window.location.origin}/client`;
 
   useEffect(() => {
-    fetch(`/photos`).then(r => r.json()).then(setPhotos).catch(e => console.error("Fetch failed", e));
+    fetch(`${SERVER_URL}/photos`).then(r => r.json()).then(setPhotos).catch(e => console.error("Fetch failed", e));
+    
     socket.on('new-photo', (ph) => setPhotos(v => [ph, ...v]));
     socket.on('photo-approved', (u) => setPhotos(v => v.map(p => p.id === u.id ? u : p)));
     socket.on('photo-removed', (id) => setPhotos(v => v.filter(p => p.id !== id)));
-    return () => { socket.off('new-photo'); socket.off('photo-approved'); socket.off('photo-removed'); };
+    
+    socket.on('stream-status', (status) => {
+      setIsLive(status.active);
+      setStreamerName(status.streamerName || '');
+      if (!status.active) setCurrentFrame(null);
+    });
+
+    socket.on('stream-frame', (frame) => {
+      setCurrentFrame(frame);
+      setIsLive(true);
+    });
+
+    return () => { 
+      socket.off('new-photo'); 
+      socket.off('photo-approved'); 
+      socket.off('photo-removed'); 
+      socket.off('stream-status');
+      socket.off('stream-frame');
+    };
   }, []);
+
+  const killStream = () => {
+    if (window.confirm("Are you sure you want to forcibly stop this stream?")) {
+      socket.emit('kill-stream');
+    }
+  };
 
   return (
     <div className="page-container">
@@ -213,17 +250,36 @@ const AdminDashboard = () => {
             { label: "Pending Approval", val: photos.filter(p => p.status === 'pending').length, icon: <RefreshCw className="animate-spin-slow" />, color: "text-amber-400", bg: "bg-amber-400/10" },
             { label: "Total Published", val: photos.filter(p => p.status === 'approved').length, icon: <CheckCircle />, color: "text-emerald-400", bg: "bg-emerald-400/10" },
             { label: "Active Photographers", val: new Set(photos.map(p => p.userName)).size, icon: <User />, color: "text-blue-400", bg: "bg-blue-400/10" },
-            { label: "Session Health", val: "100%", icon: <TrendingUp />, color: "text-primary", bg: "bg-primary/10" }
+            { label: "Live Streaming", val: isLive ? "ACTIVE" : "OFFLINE", icon: <Tv />, color: isLive ? "text-red-400" : "text-primary", bg: isLive ? "bg-red-400/10" : "bg-primary/10" }
           ].map((stat, i) => (
             <div key={i} className="glass-card stat-card">
               <div>
                 <p className="text-xs font-bold text-text-muted uppercase mb-2">{stat.label}</p>
-                <p className={`stat-value ${stat.color}`}>{stat.val}</p>
+                <p className={`stat-value ${stat.color} !text-2xl sm:!text-4xl`}>{stat.val}</p>
               </div>
               <div className={`p-4 ${stat.bg} ${stat.color} rounded-2xl`}>{stat.icon}</div>
             </div>
           ))}
       </div>
+
+      {isLive && currentFrame && (
+        <div className="mb-20 w-full">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-3xl font-black flex items-center gap-3"><Tv /> Live Stream Monitor</h3>
+            <button onClick={killStream} className="btn bg-red-600/10 text-red-500 border-red-500/20 hover:bg-red-600 hover:text-white !py-2 !px-4 !text-xs">
+              Stop Stream
+            </button>
+          </div>
+          <div className="glass-card !p-0 overflow-hidden border-red-500/20 max-w-2xl">
+             <div className="aspect-video bg-black relative">
+               <img src={currentFrame} className="w-full h-full object-contain" alt="Live monitor" />
+               <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 bg-red-600 rounded-full text-[10px] font-bold text-white uppercase animate-pulse">
+                 Monitoring: {streamerName}
+               </div>
+             </div>
+          </div>
+        </div>
+      )}
 
       <div className="w-full">
         <div className="flex items-center justify-between mb-10">
@@ -258,7 +314,7 @@ const AdminDashboard = () => {
                       <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${p.status === 'approved' ? 'bg-primary text-white' : 'bg-amber-400 text-black'}`}>
                         {p.status}
                       </span>
-                      <button onClick={() => fetch(`/photo/${p.id}`, { method: 'DELETE' })} className="w-10 h-10 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors">
+                      <button onClick={() => fetch(`${SERVER_URL}/photo/${p.id}`, { method: 'DELETE' })} className="w-10 h-10 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors">
                         <X size={20}/>
                       </button>
                     </div>
@@ -268,7 +324,7 @@ const AdminDashboard = () => {
                         <p className="text-xs text-text-muted">{new Date(p.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • Captured Live</p>
                       </div>
                       {p.status === 'pending' && (
-                        <button onClick={() => fetch(`/approve/${p.id}`, { method: 'POST' })} className="btn btn-primary w-full py-3 text-sm">Approve Moment</button>
+                        <button onClick={() => fetch(`${SERVER_URL}/approve/${p.id}`, { method: 'POST' })} className="btn btn-primary w-full py-3 text-sm">Approve Moment</button>
                       )}
                     </div>
                   </div>
@@ -284,12 +340,33 @@ const AdminDashboard = () => {
 
 const PublicGallery = () => {
   const [photos, setPhotos] = useState<any[]>([]);
+  const [isLive, setIsLive] = useState(false);
+  const [streamerName, setStreamerName] = useState('');
+  const [currentFrame, setCurrentFrame] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/photos/approved`).then(r => r.json()).then(setPhotos).catch(e => console.error("Fetch failed", e));
+    fetch(`${SERVER_URL}/photos/approved`).then(r => r.json()).then(setPhotos).catch(e => console.error("Fetch failed", e));
+    
     socket.on('photo-approved', (p) => setPhotos(v => [p, ...v]));
     socket.on('photo-removed', (id) => setPhotos(v => v.filter(p => p.id !== id)));
-    return () => { socket.off('photo-approved'); socket.off('photo-removed'); };
+    
+    socket.on('stream-status', (status) => {
+      setIsLive(status.active);
+      setStreamerName(status.streamerName || '');
+      if (!status.active) setCurrentFrame(null);
+    });
+
+    socket.on('stream-frame', (frame) => {
+      setCurrentFrame(frame);
+      setIsLive(true);
+    });
+
+    return () => { 
+      socket.off('photo-approved'); 
+      socket.off('photo-removed'); 
+      socket.off('stream-status');
+      socket.off('stream-frame');
+    };
   }, []);
 
   return (
@@ -305,6 +382,30 @@ const PublicGallery = () => {
         <h1 className="hero-title">Guest <span className="text-gradient">Gallery.</span></h1>
         <p className="hero-subtitle max-w-2xl">A collection of beautiful moments captured by our family and friends today.</p>
       </header>
+
+      {isLive && currentFrame && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="mb-20"
+        >
+          <div className="glass-card !p-0 overflow-hidden border-primary/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] max-w-4xl mx-auto">
+            <div className="bg-primary/10 px-6 py-4 flex items-center justify-between border-b border-primary/20">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                <span className="text-sm font-black tracking-widest uppercase">Live Broadcast</span>
+              </div>
+              <span className="text-xs font-bold text-text-muted italic">Shared by {streamerName}</span>
+            </div>
+            <div className="aspect-video w-full bg-black relative">
+              <img src={currentFrame} className="w-full h-full object-contain" alt="Live stream" />
+              <div className="absolute bottom-6 right-6 flex items-center gap-2 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full text-[10px] font-bold text-white uppercase tracking-widest">
+                Real-Time Feed
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {photos.length === 0 ? (
         <div className="glass-card text-center py-40 border-dashed opacity-40">
@@ -352,11 +453,29 @@ const PublicGallery = () => {
 const ClientCamera = () => {
   const [name, setName] = useState('');
   const [joined, setJoined] = useState(false);
+  const [mode, setMode] = useState<'photo' | 'live'>('photo');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [capturing, setCapturing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamDuration, setStreamDuration] = useState(0);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const intervalRef = useRef<any>(null);
+
+  useEffect(() => {
+    let timer: any;
+    if (isStreaming) {
+      timer = setInterval(() => setStreamDuration(d => d + 1), 1000);
+    } else {
+      setStreamDuration(0);
+    }
+    return () => clearInterval(timer);
+  }, [isStreaming]);
 
   const join = () => {
     if (name) setJoined(true);
@@ -418,7 +537,7 @@ const ClientCamera = () => {
     
     setCapturing(true);
     try {
-      await fetch(`/upload`, { method: 'POST', body: fd });
+      await fetch(`${SERVER_URL}/upload`, { method: 'POST', body: fd });
       setSuccess(true);
       setSelectedFile(null);
       setPreviewUrl(null);
@@ -427,6 +546,52 @@ const ClientCamera = () => {
       alert("Upload failed. Please check your connection.");
     }
     setCapturing(false);
+  };
+
+  const startLive = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }, 
+        audio: false 
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setIsStreaming(true);
+      socket.emit('start-stream', { name });
+
+      // Start frame capture loop
+      intervalRef.current = setInterval(() => {
+        if (canvasRef.current && videoRef.current) {
+          const ctx = canvasRef.current.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
+            const frame = canvasRef.current.toDataURL('image/jpeg', 0.4);
+            socket.emit('stream-frame', frame);
+          }
+        }
+      }, 100); // 10 FPS
+    } catch (err) {
+      alert("Could not access camera for streaming.");
+    }
+  };
+
+  const stopLive = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+    }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    setIsStreaming(false);
+    socket.emit('stop-stream');
+  };
+
+  const formatDuration = (s: number) => {
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   if (!joined) {
@@ -464,63 +629,128 @@ const ClientCamera = () => {
 
   return (
     <div className="page-container justify-center items-center text-center">
-      <div className="glass-card max-w-md w-full space-y-10">
-        {!previewUrl ? (
-          <>
-            <div className="flex flex-col items-center">
-              <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center mb-8 relative">
-                <Camera size={56} className="text-primary" />
-                <div className="absolute inset-0 border-2 border-primary/30 border-dashed rounded-full animate-spin-slow" />
-              </div>
-              <h2 className="text-3xl font-black mb-2">Ready, {name.split(' ')[0]}?</h2>
-              <p className="text-text-muted">Take a photo to share it instantly.</p>
-            </div>
-
-            <input 
-              type="file" 
-              accept="image/*" 
-              capture="environment" 
-              className="hidden" 
-              ref={fileInputRef} 
-              onChange={onFileSelect}
-            />
-
+      <div className="glass-card max-w-md w-full space-y-8">
+        {!isStreaming && !previewUrl && (
+          <div className="mode-toggle-container">
             <button 
-              disabled={capturing}
-              onClick={() => fileInputRef.current?.click()}
-              className="btn btn-primary w-full py-6 text-2xl shadow-2xl shadow-primary/40 group"
+              onClick={() => setMode('photo')}
+              className={`mode-toggle-btn ${mode === 'photo' ? 'active' : ''}`}
             >
-              {capturing ? <RefreshCw className="animate-spin" /> : <><Camera size={32} /> Open Camera</>}
+              <ImageIcon size={18} /> PHOTO
             </button>
-            
-            <p className="text-[10px] text-text-muted uppercase tracking-[0.2em] font-bold">Safe & Moderated Environment</p>
-          </>
+            <button 
+              onClick={() => setMode('live')}
+              className={`mode-toggle-btn ${mode === 'live' ? 'active' : ''}`}
+            >
+              <Tv size={18} /> GO LIVE
+            </button>
+          </div>
+        )}
+
+        {mode === 'photo' ? (
+          !previewUrl ? (
+            <>
+              <div className="flex flex-col items-center">
+                <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center mb-8 relative">
+                  <Camera size={56} className="text-primary" />
+                  <div className="absolute inset-0 border-2 border-primary/30 border-dashed rounded-full animate-spin-slow" />
+                </div>
+                <h2 className="text-3xl font-black mb-2">Ready, {name.split(' ')[0]}?</h2>
+                <p className="text-text-muted">Take a photo to share it instantly.</p>
+              </div>
+
+              <input 
+                type="file" 
+                accept="image/*" 
+                capture="environment" 
+                className="hidden" 
+                ref={fileInputRef} 
+                onChange={onFileSelect}
+              />
+
+              <button 
+                disabled={capturing}
+                onClick={() => fileInputRef.current?.click()}
+                className="btn-premium btn-premium-primary"
+              >
+                {capturing ? <RefreshCw className="animate-spin" /> : <><Camera size={32} /> Open Camera</>}
+              </button>
+            </>
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-full space-y-8"
+            >
+              <div className="aspect-[4/5] w-full rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl">
+                <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
+              </div>
+
+              <div className="space-y-4">
+                 <button 
+                  onClick={submitPhoto}
+                  disabled={capturing}
+                  className="btn-premium btn-premium-primary"
+                >
+                  {capturing ? <RefreshCw className="animate-spin" /> : <><Send size={20} /> Publish Moment</>}
+                </button>
+                <button 
+                  onClick={() => { setSelectedFile(null); setPreviewUrl(null); }}
+                  className="btn btn-secondary w-full py-4 rounded-2xl font-bold"
+                >
+                  <RotateCcw size={18} /> Take Another
+                </button>
+              </div>
+            </motion.div>
+          )
         ) : (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full space-y-8"
-          >
-            <div className="aspect-[4/5] w-full rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl">
-              <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
+          <div className="space-y-8">
+            <div className="aspect-video w-full rounded-3xl overflow-hidden bg-black border-2 border-white/10 shadow-2xl relative">
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline 
+                muted 
+                className={`w-full h-full object-cover ${isStreaming ? 'opacity-100' : 'opacity-40'}`} 
+              />
+              <canvas ref={canvasRef} width="640" height="480" className="hidden" />
+              
+              {isStreaming && (
+                <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 bg-red-600 rounded-full text-[10px] font-bold text-white animate-pulse">
+                  <div className="w-2 h-2 bg-white rounded-full" /> LIVE
+                </div>
+              )}
+              {isStreaming && (
+                <div className="absolute top-4 right-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] font-bold text-white">
+                  {formatDuration(streamDuration)}
+                </div>
+              )}
+              {!isStreaming && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                   <Tv size={48} className="text-white/20" />
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
-               <button 
-                onClick={submitPhoto}
-                disabled={capturing}
-                className="btn btn-primary w-full py-5 text-xl"
-              >
-                {capturing ? <RefreshCw className="animate-spin" /> : <><Send size={20} /> Publish Moment</>}
-              </button>
-              <button 
-                onClick={() => { setSelectedFile(null); setPreviewUrl(null); }}
-                className="btn btn-secondary w-full py-4"
-              >
-                <RotateCcw size={18} /> Take Another
-              </button>
+              {!isStreaming ? (
+                <button 
+                  onClick={startLive}
+                  className="btn-premium btn-premium-primary"
+                >
+                  <Tv size={32} /> Start Livestream
+                </button>
+              ) : (
+                <button 
+                  onClick={stopLive}
+                  className="btn-premium btn-premium-danger"
+                >
+                  <X size={32} /> Stop Streaming
+                </button>
+              )}
+              <p className="text-[10px] text-text-muted uppercase tracking-[0.2em] font-bold">Broadcasting to guest gallery</p>
             </div>
-          </motion.div>
+          </div>
         )}
 
         <AnimatePresence>

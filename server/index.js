@@ -24,6 +24,49 @@ const io = new Server(server, {
     }
 });
 
+let currentStreamer = null;
+
+io.on('connection', (socket) => {
+    // Send current stream status to new connection
+    socket.emit('stream-status', { active: !!currentStreamer, streamerName: currentStreamer?.name });
+
+    socket.on('start-stream', ({ name }) => {
+        if (!currentStreamer) {
+            currentStreamer = { id: socket.id, name };
+            io.emit('stream-status', { active: true, streamerName: name });
+            console.log(`Stream started by ${name}`);
+        }
+    });
+
+    socket.on('stream-frame', (frame) => {
+        if (currentStreamer && currentStreamer.id === socket.id) {
+            socket.broadcast.emit('stream-frame', frame);
+        }
+    });
+
+    socket.on('stop-stream', () => {
+        if (currentStreamer && currentStreamer.id === socket.id) {
+            currentStreamer = null;
+            io.emit('stream-status', { active: false });
+            console.log('Stream stopped');
+        }
+    });
+
+    socket.on('kill-stream', () => {
+        currentStreamer = null;
+        io.emit('stream-status', { active: false });
+        console.log('Stream killed by admin');
+    });
+
+    socket.on('disconnect', () => {
+        if (currentStreamer && currentStreamer.id === socket.id) {
+            currentStreamer = null;
+            io.emit('stream-status', { active: false });
+            console.log('Streamer disconnected');
+        }
+    });
+});
+
 app.use(cors());
 app.use(express.json());
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
