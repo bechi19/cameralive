@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@100..900&family=Inter:wght@100..900&display=swap');
 
 :root {
-  --primary: #C5A059; /* Champagne Gold */
-  --primary-glow: rgba(197, 160, 89, 0.15);
-  --secondary: #6B1A1A; /* Luxurious Burgundy */
-  --accent: #E5E1D8; /* Soft Cream */
-  --bg-dark: #FAF9F6; /* Linen White / Ivory */
-  --bg-card: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(197, 160, 89, 0.15);
-  --glass-highlight: rgba(255, 255, 255, 0.8);
-  --text-main: #2D2A26;
-  --text-muted: #6B6B6B;
+  --primary: #D4AF37; /* Regal Gold */
+  --primary-glow: rgba(212, 175, 55, 0.2);
+  --secondary: #9B1B1B; /* Crimson Red */
+  --accent: #FFF9E5; /* Warm Cream */
+  --bg-dark: #FFFDF5; /* Soft Ivory */
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(212, 175, 55, 0.2);
+  --glass-highlight: rgba(255, 255, 255, 0.9);
+  --text-main: #1A1A1A;
+  --text-muted: #5A5A5A;
   --font-heading: 'Playfair Display', serif;
   --font-body: 'Outfit', sans-serif;
   
@@ -62,10 +62,10 @@ body {
   z-index: -1;
   background-color: var(--bg-dark);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(197, 160, 89, 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(107, 26, 26, 0.03) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(197, 160, 89, 0.05) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(107, 26, 26, 0.03) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(212, 175, 55, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(155, 27, 27, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(212, 175, 55, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(155, 27, 27, 0.05) 0px, transparent 50%);
 }
 
 /* --- Navigation --- */

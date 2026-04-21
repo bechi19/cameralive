@@ -311,18 +311,18 @@ const AdminDashboard = () => {
           ))}
       </div>
 
-      {isLive && currentFrame && (
+       {isLive && currentFrame && (
         <div className="mb-20 w-full">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-3xl font-black flex items-center gap-3"><Tv /> Live Stream Monitor</h3>
-            <button onClick={killStream} className="btn bg-red-600/10 text-red-500 border-red-500/20 hover:bg-red-600 hover:text-white !py-2 !px-4 !text-xs">
+            <button onClick={killStream} className="btn bg-secondary/10 text-secondary border-secondary/20 hover:bg-secondary hover:text-white !py-2 !px-4 !text-xs">
               Stop Stream
             </button>
           </div>
-          <div className="glass-card !p-0 overflow-hidden border-red-500/20 max-w-2xl">
+          <div className="glass-card !p-0 overflow-hidden border-secondary/20 max-w-2xl">
              <div className="aspect-video bg-black relative">
                <img src={currentFrame} className="w-full h-full object-contain" alt="Live monitor" />
-               <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 bg-red-600 rounded-full text-[10px] font-bold text-white uppercase animate-pulse">
+               <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 bg-secondary rounded-full text-[10px] font-bold text-white uppercase animate-pulse">
                  Monitoring: {streamerName}
                </div>
              </div>
@@ -363,7 +363,7 @@ const AdminDashboard = () => {
                       <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${p.status === 'approved' ? 'bg-primary text-white' : 'bg-amber-400 text-black'}`}>
                         {p.status}
                       </span>
-                      <button onClick={() => fetch(`${SERVER_URL}/photo/${p.id}`, { method: 'DELETE' })} className="w-10 h-10 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors">
+                      <button onClick={() => fetch(`${SERVER_URL}/photo/${p.id}`, { method: 'DELETE' })} className="w-10 h-10 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-secondary transition-colors">
                         <X size={20}/>
                       </button>
                     </div>
@@ -441,7 +441,7 @@ const PublicGallery = () => {
           <div className="glass-card !p-0 overflow-hidden border-primary/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] max-w-4xl mx-auto">
             <div className="bg-primary/10 px-6 py-4 flex items-center justify-between border-b border-primary/20">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                <div className="w-3 h-3 bg-secondary rounded-full animate-pulse" />
                 <span className="text-sm font-black tracking-widest uppercase">Live Broadcast</span>
               </div>
               <span className="text-xs font-bold text-text-muted italic">Shared by {streamerName}</span>
