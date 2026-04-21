@@ -32,7 +32,7 @@ const Navbar = () => {
           <span className="text-xl font-black tracking-[-0.05em] text-text-main leading-tight">
             OUR<span className="text-primary">MOMENTS</span>
           </span>
-          <span className="text-[10px] font-bold tracking-[0.2em] text-text-muted uppercase">Wedding Live</span>
+          <span className="text-[10px] font-bold tracking-[0.2em] text-text-muted uppercase">Live Celebration Feed</span>
         </div>
       </Link>
       <div className="nav-links xs-hidden">
@@ -40,7 +40,7 @@ const Navbar = () => {
         <Link to="/admin" className={pathname === '/admin' ? 'active' : ''}>Admin</Link>
       </div>
       <Link to="/client" className="btn btn-primary !py-2.5 !px-6 rounded-full text-xs shadow-lg whitespace-nowrap">
-        <span>JOIN CELEBRATION</span>
+        <span>JOIN THE FEED</span>
       </Link>
     </nav>
   );
@@ -104,21 +104,21 @@ const Home = () => {
         </motion.div>
 
         <motion.h1 variants={fadeInUp} className="hero-title">
-          Capturing Our <br />
-          <span className="italic font-light serif text-primary">Eternal Moments.</span>
+          Our Love, Captured <br />
+          <span className="italic font-light serif text-primary">Through Your Eyes.</span>
         </motion.h1>
 
         <motion.p variants={fadeInUp} className="hero-subtitle">
-          Every guest a storyteller. Every moment a treasure. <br className="xs-hidden" />
-          Help us document our special day through your lens.
+          Be more than a guest. Join us in preserving the magic of our celebration. <br className="xs-hidden" />
+          Every photo you take tells a beautiful part of our story.
         </motion.p>
         
         <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-24">
           <Link to="/client" className="btn btn-primary group !py-5 !px-10 text-base">
-            Share a Moment <Camera size={20} className="transition-transform group-hover:scale-110 ml-1" />
+            Capture the Magic <Camera size={20} className="transition-transform group-hover:scale-110 ml-1" />
           </Link>
           <Link to="/gallery" className="btn btn-secondary !py-5 !px-10 text-base">
-            View Guest Wall
+            The Love Gallery
           </Link>
         </motion.div>
 
@@ -153,9 +153,9 @@ const Home = () => {
 
         <motion.div variants={fadeInUp} className="grid grid-cols-1 sm:grid-cols-3 gap-12 sm:gap-16 px-6">
            {[
-             { icon: <Heart className="text-secondary fill-secondary" />, title: "Cherished", desc: "Forever preserved in our hearts" },
-             { icon: <Stars className="text-primary" />, title: "Magical", desc: "Capturing the magic in real-time" },
-             { icon: <Gift className="text-primary" />, title: "Shared", desc: "A collective gift from our loved ones" }
+             { icon: <Heart className="text-secondary fill-secondary" />, title: "Eternal", desc: "Preserved forever in our collective memory" },
+             { icon: <Stars className="text-primary" />, title: "Radiant", desc: "Shining bright through your unique perspective" },
+             { icon: <Gift className="text-primary" />, title: "Beloved", desc: "A beautiful gift from those we hold dear" }
            ].map((item, i) => (
              <div key={i} className="flex flex-col items-center gap-6 group">
                <div className="w-20 h-20 rounded-full bg-white border border-primary/10 flex items-center justify-center shadow-sm transition-all group-hover:scale-110 group-hover:border-primary/40 group-hover:shadow-xl">
