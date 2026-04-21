@@ -24,21 +24,23 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <Link to="/" className="flex items-center gap-2 no-underline group">
-        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-lg sm:rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-3 shadow-lg shadow-primary/20">
-          <Heart size={18} className="text-white fill-white" />
+      <Link to="/" className="flex items-center gap-3 no-underline group">
+        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center transition-all group-hover:bg-primary group-hover:scale-110 shadow-sm">
+          <Heart size={20} className="text-primary group-hover:text-white fill-current transition-colors" />
         </div>
-        <span className="text-lg sm:text-xl font-black tracking-tighter text-text-main">
-          OUR<span className="text-primary xs-hidden">MOMENTS</span>
-        </span>
+        <div className="flex flex-col -space-y-1">
+          <span className="text-xl font-black tracking-[-0.05em] text-text-main leading-tight">
+            OUR<span className="text-primary">MOMENTS</span>
+          </span>
+          <span className="text-[10px] font-bold tracking-[0.2em] text-text-muted uppercase">Wedding Live</span>
+        </div>
       </Link>
-      <div className="nav-links">
+      <div className="nav-links xs-hidden">
         <Link to="/gallery" className={pathname === '/gallery' ? 'active' : ''}>Gallery</Link>
         <Link to="/admin" className={pathname === '/admin' ? 'active' : ''}>Admin</Link>
       </div>
-      <Link to="/client" className="btn btn-primary !py-2 !px-3 sm:!py-2.5 sm:!px-5 rounded-full text-[10px] sm:text-xs shadow-none whitespace-nowrap">
-        <span className="xs-hidden">Join Live</span>
-        <span className="xs-only">Join</span>
+      <Link to="/client" className="btn btn-primary !py-2.5 !px-6 rounded-full text-xs shadow-lg whitespace-nowrap">
+        <span>JOIN CELEBRATION</span>
       </Link>
     </nav>
   );
@@ -85,80 +87,83 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="page-container justify-center items-center text-center">
+    <div className="page-container items-center text-center">
       <motion.div
         variants={staggerContainer}
         initial="initial"
         animate="animate"
         className="w-full max-w-5xl"
       >
-        <motion.div variants={fadeInUp} className="flex justify-center mb-8 sm:mb-16">
-          <div className="status-badge group cursor-default">
-            <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]'}`} />
-            <span className={isLive ? 'text-red-400 font-bold' : 'group-hover:text-emerald-400 transition-colors'}>
-              {isLive ? 'LIVE STREAMING ACTIVE' : 'SYSTEM ONLINE'}
+        <motion.div variants={fadeInUp} className="flex justify-center mb-12">
+          <div className="status-badge">
+            <div className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-secondary animate-pulse shadow-[0_0_8px_var(--secondary)]' : 'bg-primary shadow-[0_0_8px_var(--primary)]'}`} />
+            <span className={isLive ? 'text-secondary font-bold' : ''}>
+              {isLive ? 'LIVE FROM THE CEREMONY' : 'GALLERY IS LIVE'}
             </span>
           </div>
         </motion.div>
 
+        <motion.h1 variants={fadeInUp} className="hero-title">
+          Capturing Our <br />
+          <span className="italic font-light serif text-primary">Eternal Moments.</span>
+        </motion.h1>
+
+        <motion.p variants={fadeInUp} className="hero-subtitle">
+          Every guest a storyteller. Every moment a treasure. <br className="xs-hidden" />
+          Help us document our special day through your lens.
+        </motion.p>
+        
+        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-24">
+          <Link to="/client" className="btn btn-primary group !py-5 !px-10 text-base">
+            Share a Moment <Camera size={20} className="transition-transform group-hover:scale-110 ml-1" />
+          </Link>
+          <Link to="/gallery" className="btn btn-secondary !py-5 !px-10 text-base">
+            View Guest Wall
+          </Link>
+        </motion.div>
+
         {isLive && currentFrame && (
           <motion.div 
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-16 sm:mb-24 w-full"
+            className="mb-32 w-full max-w-4xl mx-auto"
           >
-            <div className="glass-card !p-0 overflow-hidden border-primary/40 shadow-[0_0_80px_rgba(212,175,55,0.2)] max-w-3xl mx-auto group">
-              <div className="bg-primary/10 px-6 py-4 flex items-center justify-between border-b border-primary/20">
+            <div className="glass-card !p-0 overflow-hidden border-primary/20 shadow-2xl group">
+              <div className="bg-white/50 px-8 py-5 flex items-center justify-between border-b border-primary/10">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-                  <h3 className="text-sm font-black tracking-widest uppercase m-0">Direct Live</h3>
+                  <div className="live-indicator">
+                    <div className="dot" /> LIVE
+                  </div>
+                  <h3 className="text-xs font-bold tracking-[0.2em] uppercase m-0 text-text-muted">Broadcast</h3>
                 </div>
                 <div className="flex items-center gap-2">
                   <User size={14} className="text-primary" />
-                  <span className="text-xs font-bold text-text-muted">Captured by {streamerName}</span>
+                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Shared by {streamerName}</span>
                 </div>
               </div>
-              <div className="aspect-video w-full bg-black relative overflow-hidden">
+              <div className="aspect-video w-full bg-[#0a0a0a] relative overflow-hidden">
                 <img src={currentFrame} className="w-full h-full object-contain" alt="Live stream" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                   <p className="text-white text-xs font-bold tracking-widest uppercase">Live Celebration Feed</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+                   <p className="text-white text-[10px] font-bold tracking-[0.3em] uppercase">Real-Time Celebration Feed</p>
                 </div>
               </div>
             </div>
           </motion.div>
         )}
 
-        <motion.h1 variants={fadeInUp} className="hero-title">
-          Capturing Our <br />
-          <span className="text-gradient">Eternal Love.</span>
-        </motion.h1>
-
-        <motion.p variants={fadeInUp} className="hero-subtitle px-4 lg:px-0">
-          Every guest a photographer. Every moment a treasure. Help us document our special day through your lens.
-        </motion.p>
-        
-        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center items-center gap-6 mt-10 sm:mt-12 px-4">
-          <Link to="/client" className="btn btn-primary group !py-5 !px-8 text-lg min-w-[240px]">
-            Share a Moment <Camera size={22} className="transition-transform group-hover:scale-110 ml-2" />
-          </Link>
-          <Link to="/gallery" className="btn btn-secondary !py-5 !px-8 text-lg min-w-[240px]">
-            View Guest Gallery
-          </Link>
-        </motion.div>
-
-        <motion.div variants={fadeInUp} className="mt-24 sm:mt-32 grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 px-6">
+        <motion.div variants={fadeInUp} className="grid grid-cols-1 sm:grid-cols-3 gap-12 sm:gap-16 px-6">
            {[
-             { icon: <Heart className="text-secondary fill-secondary" />, title: "Cherished", desc: "Forever preserved" },
-             { icon: <Sparkles className="text-primary" />, title: "Magical", desc: "Real-time celebration" },
-             { icon: <Gift className="text-amber-600" />, title: "Gifted", desc: "Shared with love" }
+             { icon: <Heart className="text-secondary fill-secondary" />, title: "Cherished", desc: "Forever preserved in our hearts" },
+             { icon: <Stars className="text-primary" />, title: "Magical", desc: "Capturing the magic in real-time" },
+             { icon: <Gift className="text-primary" />, title: "Shared", desc: "A collective gift from our loved ones" }
            ].map((item, i) => (
-             <div key={i} className="flex flex-col items-center gap-4 group">
-               <div className="w-16 h-16 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center mb-2 shadow-2xl transition-all group-hover:scale-110 group-hover:border-primary/50 group-hover:bg-primary/5">
-                 {React.cloneElement(item.icon as React.ReactElement, { size: 28 })}
+             <div key={i} className="flex flex-col items-center gap-6 group">
+               <div className="w-20 h-20 rounded-full bg-white border border-primary/10 flex items-center justify-center shadow-sm transition-all group-hover:scale-110 group-hover:border-primary/40 group-hover:shadow-xl">
+                 {React.cloneElement(item.icon as React.ReactElement, { size: 32, strokeWidth: 1.5 })}
                </div>
                <div className="text-center">
-                 <h3 className="text-2xl font-black mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
-                 <p className="text-base text-text-muted">{item.desc}</p>
+                 <h3 className="text-xl font-bold mb-3 text-text-main group-hover:text-primary transition-colors">{item.title}</h3>
+                 <p className="text-sm text-text-muted leading-relaxed">{item.desc}</p>
                </div>
              </div>
            ))}
@@ -185,39 +190,39 @@ const AdminLogin = ({ onLogin }: { onLogin: () => void }) => {
   return (
     <div className="page-container justify-center items-center">
       <motion.div 
-        initial={{ scale: 0.95, opacity: 0 }} 
+        initial={{ scale: 0.98, opacity: 0 }} 
         animate={{ scale: 1, opacity: 1 }}
         className="glass-card max-w-md w-full"
       >
-        <div className="w-20 h-20 bg-primary/10 rounded-3xl mx-auto mb-8 flex items-center justify-center text-primary">
-          <Lock size={40} />
+        <div className="w-20 h-20 bg-primary/5 rounded-full mx-auto mb-10 flex items-center justify-center text-primary border border-primary/10">
+          <Lock size={32} strokeWidth={1.5} />
         </div>
-        <h2 className="text-3xl sm:text-4xl font-black text-center mb-2">Admin Panel</h2>
-        <p className="text-text-muted text-center mb-10 max-w-xs mx-auto">Enter your credentials to manage live content.</p>
+        <h2 className="text-3xl font-black text-center mb-3">Admin Portal</h2>
+        <p className="text-sm text-text-muted text-center mb-10 tracking-wide uppercase font-bold text-[10px]">Secure Access Required</p>
         
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-text-muted uppercase ml-1">Username</label>
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Username</label>
             <input 
               className="input-field" 
-              placeholder="admin..." 
+              placeholder="Enter username" 
               value={user}
               onChange={(e) => setUser(e.target.value)}
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-text-muted uppercase ml-1">Password</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Password</label>
             <input 
               type="password"
               className="input-field" 
-              placeholder="••••••" 
+              placeholder="••••••••" 
               value={pass}
               onChange={(e) => setPass(e.target.value)}
             />
           </div>
-          {error && <p className="text-red-400 text-xs font-bold text-center">{error}</p>}
-          <button type="submit" className="btn btn-primary !w-full py-4 mt-4">
-            Authorize <ChevronRight size={18} />
+          {error && <p className="text-secondary text-[10px] font-black text-center tracking-widest uppercase">{error}</p>}
+          <button type="submit" className="btn btn-primary !w-full py-4 mt-6">
+            AUTHORIZE ACCESS <ChevronRight size={18} />
           </button>
         </form>
       </motion.div>
@@ -267,41 +272,41 @@ const AdminDashboard = () => {
 
   return (
     <div className="page-container">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-20">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12 mb-24">
         <div className="w-full lg:w-auto">
-          <h2 className="text-4xl sm:text-6xl font-black mb-6">Command <span className="text-gradient">Center</span></h2>
-          <div className="flex flex-wrap items-center gap-4">
-             <div className="status-badge bg-primary/10 border-primary/20 text-primary !py-2 !px-5 shadow-[0_0_20px_rgba(99,102,241,0.15)]">
-               <Activity size={16} /> <span className="text-sm">LIVE MODERATION</span>
+          <h2 className="text-5xl font-black mb-6 tracking-tight">Command <span className="text-primary italic font-light serif">Center.</span></h2>
+          <div className="flex flex-wrap items-center gap-6">
+             <div className="status-badge !bg-primary/5 !border-primary/20 !text-primary !py-2.5 !px-6">
+               <Activity size={16} /> <span className="text-[10px] font-black tracking-widest">LIVE MODERATION</span>
              </div>
-             <p className="text-base text-text-muted border-l border-white/10 pl-4 ml-1">Monitoring {photos.length} total captures.</p>
+             <p className="text-sm text-text-muted border-l border-primary/20 pl-6">Monitoring {photos.length} captured moments.</p>
           </div>
         </div>
         
-        <div className="glass-card !p-5 flex items-center gap-6 bg-white/5 border-white/10 group lg:max-w-md w-full shadow-2xl">
+        <div className="glass-card !p-6 flex items-center gap-8 bg-white/40 border-primary/10 group lg:max-w-md w-full shadow-xl">
            <div className="text-right flex-1 min-w-0">
-             <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-1">Live Feed Portal</p>
-             <p className="text-sm font-mono text-primary truncate selection:bg-primary selection:text-white">{clientUrl}</p>
+             <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.25em] mb-2">Live Portal URL</p>
+             <p className="text-xs font-mono text-primary truncate bg-primary/5 p-2 rounded-lg">{clientUrl}</p>
            </div>
-           <div className="p-2 bg-white rounded-2xl transition-all group-hover:scale-110 group-hover:rotate-3 shrink-0 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-             <QRCodeSVG value={clientUrl} size={80} fgColor="#020617" />
+           <div className="p-3 bg-white rounded-2xl transition-all group-hover:scale-110 shadow-lg border border-primary/5">
+             <QRCodeSVG value={clientUrl} size={70} fgColor="#2D2A26" />
            </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-16 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-20 w-full">
           {[
-            { label: "Pending Approval", val: photos.filter(p => p.status === 'pending').length, icon: <RefreshCw className="animate-spin-slow" />, color: "text-amber-400", bg: "bg-amber-400/10" },
-            { label: "Total Published", val: photos.filter(p => p.status === 'approved').length, icon: <CheckCircle />, color: "text-emerald-400", bg: "bg-emerald-400/10" },
-            { label: "Active Photographers", val: new Set(photos.map(p => p.userName)).size, icon: <User />, color: "text-blue-400", bg: "bg-blue-400/10" },
-            { label: "Live Streaming", val: isLive ? "ACTIVE" : "OFFLINE", icon: <Tv />, color: isLive ? "text-red-400" : "text-primary", bg: isLive ? "bg-red-400/10" : "bg-primary/10" }
+            { label: "Pending", val: photos.filter(p => p.status === 'pending').length, icon: <RefreshCw />, color: "text-primary", bg: "bg-primary/5" },
+            { label: "Approved", val: photos.filter(p => p.status === 'approved').length, icon: <CheckCircle />, color: "text-primary", bg: "bg-primary/5" },
+            { label: "Guests", val: new Set(photos.map(p => p.userName)).size, icon: <User />, color: "text-primary", bg: "bg-primary/5" },
+            { label: "Status", val: isLive ? "LIVE" : "READY", icon: <Tv />, color: isLive ? "text-secondary" : "text-primary", bg: isLive ? "bg-secondary/5" : "bg-primary/5" }
           ].map((stat, i) => (
-            <div key={i} className="glass-card stat-card">
+            <div key={i} className="glass-card !p-8 flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-text-muted uppercase mb-2">{stat.label}</p>
-                <p className={`stat-value ${stat.color} !text-2xl sm:!text-4xl`}>{stat.val}</p>
+                <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-3">{stat.label}</p>
+                <p className={`stat-value ${stat.color} !text-3xl`}>{stat.val}</p>
               </div>
-              <div className={`p-4 ${stat.bg} ${stat.color} rounded-2xl`}>{stat.icon}</div>
+              <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center border border-primary/10`}>{React.cloneElement(stat.icon as React.ReactElement, { size: 24, strokeWidth: 1.5 })}</div>
             </div>
           ))}
       </div>
@@ -415,16 +420,16 @@ const PublicGallery = () => {
 
   return (
     <div className="page-container">
-      <header className="text-center mb-16 sm:mb-24">
+      <header className="text-center mb-24">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-xs font-bold mb-8"
+          className="inline-flex items-center gap-3 px-6 py-2.5 bg-white border border-primary/15 rounded-full text-primary text-[10px] font-black tracking-[0.2em] uppercase mb-10 shadow-sm"
         >
           <Heart size={14} className="fill-primary" /> THE WEDDING CELEBRATION WALL
         </motion.div>
-        <h1 className="hero-title">Guest <span className="text-gradient">Gallery.</span></h1>
-        <p className="hero-subtitle max-w-2xl">A collection of beautiful moments captured by our family and friends today.</p>
+        <h1 className="hero-title">Guest <span className="italic font-light serif text-primary">Gallery.</span></h1>
+        <p className="hero-subtitle">A collection of beautiful moments captured by our family and friends today.</p>
       </header>
 
       {isLive && currentFrame && (
@@ -652,28 +657,28 @@ const ClientCamera = () => {
     return (
       <div className="page-container justify-center items-center">
         <motion.div 
-          initial={{ scale: 0.95, opacity: 0 }} 
+          initial={{ scale: 0.98, opacity: 0 }} 
           animate={{ scale: 1, opacity: 1 }}
           className="glass-card max-w-md w-full text-center"
         >
-          <div className="w-24 h-24 bg-primary/10 rounded-[2.5rem] mx-auto mb-10 flex items-center justify-center text-primary relative">
-            <User size={48} />
-            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-[#020617] flex items-center justify-center">
-              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+          <div className="w-24 h-24 bg-white rounded-full mx-auto mb-12 flex items-center justify-center text-primary shadow-xl border border-primary/10 relative">
+            <User size={40} strokeWidth={1} />
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full border-4 border-white flex items-center justify-center">
+              <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
             </div>
           </div>
-          <h2 className="text-4xl font-black mb-4">Hello There.</h2>
-          <p className="text-text-muted mb-10">Identify yourself to start contributing to the live gallery.</p>
+          <h2 className="text-4xl font-black mb-4 tracking-tight">Welcome Guest.</h2>
+          <p className="text-sm text-text-muted mb-12 tracking-wide uppercase font-bold text-[10px]">Please identify yourself to begin</p>
           
-          <div className="space-y-6">
+          <div className="space-y-8">
             <input 
-              className="input-field !text-center text-xl font-bold"
+              className="input-field !text-center text-lg font-bold !rounded-full !py-4"
               placeholder="Your Full Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-            <button disabled={!name} onClick={join} className="btn btn-primary w-full py-5 text-xl shadow-2xl shadow-primary/40">
-              Enter Gallery <ArrowRight size={24} />
+            <button disabled={!name} onClick={join} className="btn btn-primary !w-full py-5 text-sm tracking-widest shadow-2xl">
+              ENTER GALLERY <ArrowRight size={20} />
             </button>
           </div>
         </motion.div>
@@ -682,21 +687,21 @@ const ClientCamera = () => {
   }
 
   return (
-    <div className="page-container justify-center items-center text-center">
-      <div className="glass-card max-w-md w-full space-y-8">
+    <div className="page-container justify-center items-center">
+      <div className="glass-card max-w-md w-full !p-8 space-y-10">
         {!isStreaming && !previewUrl && (
           <div className="mode-toggle-container">
             <button 
               onClick={() => setMode('photo')}
               className={`mode-toggle-btn ${mode === 'photo' ? 'active' : ''}`}
             >
-              <ImageIcon size={18} /> PHOTO
+              <ImageIcon size={16} /> PHOTO
             </button>
             <button 
               onClick={() => setMode('live')}
               className={`mode-toggle-btn ${mode === 'live' ? 'active' : ''}`}
             >
-              <Tv size={18} /> GO LIVE
+              <Tv size={16} /> GO LIVE
             </button>
           </div>
         )}
@@ -705,12 +710,12 @@ const ClientCamera = () => {
           !previewUrl ? (
             <>
               <div className="flex flex-col items-center">
-                <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center mb-8 relative">
-                  <Camera size={56} className="text-primary" />
-                  <div className="absolute inset-0 border-2 border-primary/30 border-dashed rounded-full animate-spin-slow" />
+                <div className="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mb-10 relative border border-primary/10">
+                  <Camera size={40} className="text-primary" strokeWidth={1.5} />
+                  <div className="absolute inset-0 border border-primary/20 border-dashed rounded-full animate-spin-slow" />
                 </div>
-                <h2 className="text-3xl font-black mb-2">Ready, {name.split(' ')[0]}?</h2>
-                <p className="text-text-muted">Take a photo to share it instantly.</p>
+                <h2 className="text-3xl font-black mb-3 tracking-tight">Ready, {name.split(' ')[0]}?</h2>
+                <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Capture a magical moment</p>
               </div>
 
               <input 
@@ -725,18 +730,18 @@ const ClientCamera = () => {
               <button 
                 disabled={capturing}
                 onClick={() => fileInputRef.current?.click()}
-                className="btn-premium btn-premium-primary"
+                className="btn-premium btn-premium-primary !rounded-full"
               >
-                {capturing ? <RefreshCw className="animate-spin" /> : <><Camera size={32} /> Open Camera</>}
+                {capturing ? <RefreshCw className="animate-spin" /> : <><Camera size={24} /> OPEN CAMERA</>}
               </button>
             </>
           ) : (
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="w-full space-y-8"
+              className="w-full space-y-10"
             >
-              <div className="aspect-[4/5] w-full rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl">
+              <div className="aspect-[4/5] w-full rounded-[2.5rem] overflow-hidden border-4 border-white shadow-2xl">
                 <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
               </div>
 
@@ -744,50 +749,50 @@ const ClientCamera = () => {
                  <button 
                   onClick={submitPhoto}
                   disabled={capturing}
-                  className="btn-premium btn-premium-primary"
+                  className="btn-premium btn-premium-primary !rounded-full"
                 >
-                  {capturing ? <RefreshCw className="animate-spin" /> : <><Send size={20} /> Publish Moment</>}
+                  {capturing ? <RefreshCw className="animate-spin" /> : <><Send size={18} /> PUBLISH MOMENT</>}
                 </button>
                 <button 
                   onClick={() => { setSelectedFile(null); setPreviewUrl(null); }}
-                  className="btn btn-secondary w-full py-4 rounded-2xl font-bold"
+                  className="btn btn-secondary !w-full !rounded-full py-4 text-xs font-black tracking-widest uppercase"
                 >
-                  <RotateCcw size={18} /> Take Another
+                  <RotateCcw size={14} /> TRY AGAIN
                 </button>
               </div>
             </motion.div>
           )
         ) : (
-          <div className="space-y-6">
-            <div className="aspect-[3/4] sm:aspect-video w-full rounded-[2rem] overflow-hidden bg-black border-2 border-white/10 shadow-2xl relative">
+          <div className="space-y-8">
+            <div className="aspect-[3/4] sm:aspect-video w-full rounded-[3rem] overflow-hidden bg-[#0a0a0a] border-4 border-white shadow-2xl relative">
               <video 
                 ref={videoRef} 
                 autoPlay 
                 playsInline 
                 muted 
-                className={`w-full h-full object-cover transition-opacity duration-700 ${isStreaming ? 'opacity-100' : 'opacity-40'}`} 
+                className={`w-full h-full object-cover transition-opacity duration-1000 ${isStreaming ? 'opacity-100' : 'opacity-40'}`} 
               />
               <canvas ref={canvasRef} width="640" height="480" className="hidden" />
               
-              <div className="absolute inset-x-0 top-0 p-6 flex justify-between items-start pointer-events-none">
+              <div className="absolute inset-x-0 top-0 p-8 flex justify-between items-start pointer-events-none">
                 {isStreaming && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-red-600 rounded-full text-[10px] font-black text-white shadow-xl animate-pulse">
-                    <div className="w-2 h-2 bg-white rounded-full" /> LIVE
+                  <div className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full text-[10px] font-black text-white shadow-xl animate-pulse">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full" /> LIVE
                   </div>
                 )}
                 {isStreaming && (
-                  <div className="px-4 py-2 bg-black/60 backdrop-blur-xl rounded-full text-[10px] font-black text-white border border-white/10 shadow-xl">
+                  <div className="px-4 py-2 bg-black/40 backdrop-blur-md rounded-full text-[10px] font-black text-white border border-white/10 shadow-xl">
                     {formatDuration(streamDuration)}
                   </div>
                 )}
               </div>
 
               {!isStreaming && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/20 backdrop-blur-[2px]">
-                   <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
-                     <Tv size={40} className="text-white/40" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                   <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center border border-white/20 backdrop-blur-sm">
+                     <Tv size={32} className="text-white/40" strokeWidth={1} />
                    </div>
-                   <p className="text-white/60 font-bold text-sm">Ready to broadcast?</p>
+                   <p className="text-white/60 font-black text-[10px] uppercase tracking-widest">Ready to broadcast?</p>
                 </div>
               )}
             </div>
@@ -796,7 +801,7 @@ const ClientCamera = () => {
               {!isStreaming ? (
                 <button 
                   onClick={startLive}
-                  className="btn-premium btn-premium-primary !py-7"
+                  className="btn-premium btn-premium-primary !py-7 !rounded-full"
                 >
                   <Tv size={32} /> Start Livestream
                 </button>
